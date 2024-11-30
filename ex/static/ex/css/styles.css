@@ -1,0 +1,54 @@
+
+nav ul {
+    list-style-type: none; /* Убираем маркеры списка */
+    padding: 0; /* Убираем отступы */
+    text-align: left; /* Центрируем ссылки */
+}
+
+nav ul li {
+    display: inline; /* Располагаем элементы в строку */
+    margin: 0 15px; /* Отступы между элементами */
+}
+
+nav ul li a {
+    color: white; /* Цвет текста ссылок */
+    text-decoration: none; /* Убираем подчеркивание у ссылок */
+    font-weight: bold; /* Жирный шрифт */
+}
+
+nav ul li a:hover {
+    text-decoration: underline; /* Подчеркивание при наведении курсора */
+}
+
+
+
+/* styles.css */
+#symbolsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.symbol-card {
+    background-color: #f9f9f9; /* Цвет фона карточки */
+    border: 1px solid #ddd; /* Обводка карточки */
+    border-radius: 8px; /* Закругление углов */
+    padding: 15px; /* Отступ внутри карточки */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Тень карточки */
+    transition: transform 0.2s; /* Анимация при наведении */
+    width: 150px; /* Ширина карточки */
+}
+
+.symbol-card:hover {
+    transform: scale(1.05); /* Увеличение карточки при наведении */
+}
+
+.symbol-card h2 {
+    font-size: 1.5em; /* Размер заголовка */
+    margin: 0; /* Убрали отступы у заголовка */
+}
+
+.symbol-card p {
+    margin: 5px 0; /* Отступы для параграфов */
+    color: #333; /* Цвет текста */
+}

@@ -1,0 +1,53 @@
+<!-- templates/symbols.html -->
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой сайт</title>
+    <!-- Подключение CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'ex/css/styles.css' %}">
+</head>
+<body>
+{% include 'includes/header.html' %}
+    <div id="symbolsContainer"></div>
+    <!-- Подключение JavaScript -->
+    <script>
+        async function fetchSymbols() {
+            try {
+                const response = await fetch('api/'); // URL вашего API
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                const data = await response.json();
+                const symbolsList = document.getElementById('symbolsContainer');
+                // Очистка списка перед добавлением новых данных
+                symbolsList.innerHTML = '';
+                const symbols = data.symbols || [];
+                // Добавляем полученные символы в карточки
+                symbols.forEach(symbol => {
+                    const symbolCard = document.createElement('div');
+                    symbolCard.className = 'symbol-card';
+                    symbolCard.innerHTML = `
+                        <h2>${symbol.ticker}</h2>
+                        <p>Bid: ${symbol.best_bid}</p>
+                        <p>Ask: ${symbol.best_ask}</p>
+                    `;
+
+                    symbolCard.addEventListener('click', () => {
+                    // Перенаправление на /<ticker>
+                    window.location.href = `/${symbol.ticker}`;
+                    });
+
+                    symbolsList.appendChild(symbolCard);
+                });
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        }
+        window.onload = fetchSymbols;
+    </script>
+{% include 'includes/footer.html' %}
+</body>
+</html>

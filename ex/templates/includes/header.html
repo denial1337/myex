@@ -1,0 +1,44 @@
+<head>
+    <style>
+        header {
+    display: flex;
+    justify-content: space-between; /* Размещаем элементы по краям */
+    align-items: center;
+    padding: 10px 20px; /* Отступы для удобства */
+    background-color: #f8f8f8; /* Цвет фона хедера */
+    border-bottom: 1px solid #ddd; /* Нежная нижняя граница */
+}
+
+        .header-left,
+.header-right {
+    flex: 0 1 auto; /* Элементы слева и справа фиксированы */
+}
+
+.header-center {
+    flex: 1; /* Пустое место занимает всё доступное пространство */
+}
+    </style>
+</head>
+<header style="background-color: #4CAF50; max-width: 100%; color: white;">
+    <div class="header-left" style="margin-bottom: 10px;">
+                    <a href="{% url 'homepage' %}">
+                    <h1 class="header-h1">Mamont Stonks</h1>
+                    </a>
+    </div>
+                {% if user.is_authenticated %}
+                    <div class="header-rigt">Пользователь: <strong>{{ user.username }}</strong>
+                    <a href="{% url 'logout' %}" style="color: white; text-decoration: underline;">Logout</a></div>
+                {% else %}
+                    <div class="header-rigt"><a href="{% url 'register' %}" style="color: white; text-decoration: underline;">Register</a>
+                    <a href="{% url 'login' %}" style="color: white; text-decoration: underline;">Login</a></div>
+                {% endif %}
+
+
+<!--    <nav>-->
+<!--        <ul style="list-style-type: none; padding: 0;">-->
+<!--            <li style="text-align : left; display: inline; margin-right: 20px;">-->
+<!--                <a  style="color: white; text-decoration: none; font-weight: bold;">Главная</a>-->
+<!--            </li>-->
+<!--        </ul>-->
+<!--    </nav>-->
+</header>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Ордеры</title>
+</head>
+<body>
+
+<h1>Ордеры</h1>
+
+{% for order in orders %}
+<p>Цена: {{ order.price }}</p>
+<p>Направление: {{ order.dir }}</p>
+<p>Статус: {{ order.status }}</p>
+{% endfor %}
+
+</body>
+</html>
