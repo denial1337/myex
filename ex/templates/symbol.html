@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>-->
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ ticker }}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'ex/css/styles.css' %}">
+    <!-- Стили CSS -->
+    <style>
+
+        canvas {
+            width : 100%;
+            height : 100%;
+        }
+        div {
+            //display: grid;
+            place-items: center;
+        }
+        body {
+            //font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            //margin: 10px;
+            //padding: 10px;
+        }
+        .MainTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin: auto; /* Центрирует таблицу */
+            //box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            //background-color: #ffffff;
+        }
+        .main-td {
+            text-align: center;
+            border-collapse: collapse;
+            padding: 10px; /* Отступ внутри ячейки */
+            border: 1px solid #ccc; /* Цвет границы ячеек */
+            border-radius: 15px; /* Закруглённые края */
+            box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.1); /* Небольшая тень */
+            background-color: #fff; /* Цвет фона ячейки */
+            margin: 0px auto; /* Отступ между ячейками */
+        }
+        h3 {
+            margin-bottom: 10px;
+            font-size: 28px;
+            color: #333;
+            text-align: center; /* Центрируем заголовки */
+        }
+
+        .ob-td {
+         width: 3px;
+        }
+
+        form {
+            background-color: #f9f9f9; /* Цвет фона формы */
+            border: 1px solid #ddd; /* Граница формы */
+            border-radius: 5px; /* Закругленные углы формы */
+            padding: 20px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: calc(100% - 20px); /* Устанавливаем ширину инпутов */
+            padding: 10px; /* Внутренний отступ */
+            margin-bottom: 10px; /* Отступ снизу */
+            border: 1px solid #ccc; /* Граница инпутов */
+            border-radius: 4px; /* Закругленные углы */
+            transition: border 0.3s; /* Плавный переход при фокусе */
+        }
+        input[type="text"]:focus: focus {
+            border: 1px solid #007bff; /* Цвет границы при фокусе */
+            outline: none; /* Убираем контур при фокусе */
+        }
+
+
+
+        .buy-button {
+            background-color: #437DD4; /* Цвет кнопки */
+            color: white; /* Цвет текста */
+            border: none; /* Убираем границу */
+            border-radius: 5px; /* Закругленные углы кнопок */
+            padding: 10px 10px; /* Внутренний отступ */
+            cursor: pointer; /* Указатель руки */
+            transition: background-color 0.3s; /* Плавный переход цвета кнопки */
+            margin: 3px; /* Отступ между кнопками */
+            //width: 47%
+        }
+        .buy-button:hover {
+            background-color: #052F6D; /* Цвет кнопки при наведении */
+        }
+
+
+        .sell-button {
+            background-color: #FA3E54; /* Цвет кнопки */
+            color: white; /* Цвет текста */
+            border: none; /* Убираем границу */
+            border-radius: 5px; /* Закругленные углы кнопок */
+            padding: 10px 10px; /* Внутренний отступ */
+            cursor: pointer; /* Указатель руки */
+            transition: background-color 0.3s; /* Плавный переход цвета кнопки */
+            margin: 3px; /* Отступ между кнопками */
+            //width: 47%
+        }
+        .sell-button:hover {
+            background-color: #A01818; /* Цвет кнопки при наведении */
+        }
+        orderBookContainer {
+            height: 400px; /* Примерная высота контейнера */
+            border: 3px solid #ddd; /* Граница контейнера */
+            background-color: #ffffff; /* Цвет фона контейнера */
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); /* Тень контейнера */
+        }
+        .ask {
+            background-color: #FA7080;//rgba(255, 0, 0, 0.3); /* Красновато прозрачный */
+            border: 1px solid black;
+            width: 100%;
+            padding: 2px;
+        }
+        .bid {
+            background-color: #6A94D4;//rgba(0, 128, 0, 0.3); /* Зеленовато прозрачный */
+            border: 1px solid black;
+            width: 100%;
+            padding: 2px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr {
+            border: 1px solid #333;
+
+        }
+
+    </style>
+</head>
+<body>
+{% include 'includes/header.html' %}
+
+
+<!-- Основная часть страницы -->
+<table class="MainTable" >
+<tr>
+    <td class="main-td">
+        <div>
+            <canvas id="chart"></canvas>
+        </div>
+    </td>
+
+    <td class="main-td">
+        <div id="orderBookContainer"></div>
+    </td>
+    {% if user.is_authenticated %}
+    <td class="main-td">
+        <div>
+        <table id="orderFormsTable">
+            <tr><td><h3>Рыночная заявка</h3></td></tr>
+            <tr>
+                <td>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ market_order_form }}
+                        <!-- Кнопки для покупки и продажи по рыночной цене -->
+                        <button type="button" class="buy-button" name="submit_button" value="buy_market_btn">BUY MARKET</button>
+                        <button type="button" class="sell-button" name="submit_button" value="sell_market_btn">SELL MARKET</button>
+                    </form>
+                </td>
+            </tr>
+            <tr><td><h3>Лимитная заявка</h3></td></tr>
+            <tr>
+                <td>
+                    <form>
+                        {% csrf_token %}
+                        {{ limit_order_form }}
+                        <!-- Кнопки для покупки и продажи по лимитной цене -->
+                        <button type="button" class="buy-button" name="submit_button" value="buy_limit_btn">BUY LIMIT</button>
+                        <button type="button" class="sell-button" name="submit_button" value="sell_limit_btn">SELL LIMIT</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+        </div>
+    </td>
+    {% endif %}
+</tr>
+    {% if user.is_authenticated %}
+    <tr>
+        <td>
+            <table id="depoTable" style="width: 100%; text-align:center">
+                <thead>
+                <tr>
+                    <th>Текущий депозит</th>
+                    <th>Свободые средства</th>
+                </tr>
+                </thead>
+                 <tbody>
+
+                 </tbody>
+            </table>
+        </td>
+    </tr>
+
+
+    <tr>
+        <td>
+        <table id="positionsTable" style="width:100%; text-align:center">
+            <thead>
+            <tr>
+                <th>Тикер</th>
+                <th>Средняя цена</th>
+                <th>Объем</th>
+                <th>Направление</th>
+                <th>PnL</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+        <table id="ordersTable" style="width:100%; text-align:center">
+            <thead>
+            <tr>
+                <th>Тикер</th>
+                <th>Цена</th>
+                <th>Объем</th>
+                <th>Исполненно</th>
+                <th>Направление</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+        </td>
+    </tr>
+    {% endif %}
+</table>
+</body>
+</html>
+
+<script>
+    function loadChart() {
+    const ctx = document.getElementById('chart');
+    const price = {{ price|safe }};
+       const datetime = {{ datetime|safe }};
+       console.log(price);
+       console.log(datetime);
+       chart = new Chart(ctx, {
+         type: 'line',
+         data: {
+           labels: datetime,
+           datasets: [{
+             data: price,
+             borderWidth: 1
+           }]
+         },
+         options: {
+            animation: false,
+            plugins : {
+                legend: {
+                    display: false,
+                    },
+                title: {
+                    display: true,
+                    text: '{{ ticker }}',
+                    padding: {
+                        top: 10,
+                        bottom: 30
+                    },
+                    font: {
+                        size: 36,
+                        family: 'Helvetica Neue'
+                    },
+                },
+            },
+
+         responsive: false,
+          scales: {
+            y: {
+              beginAtZero: false
+            }
+          }
+        }
+       });
+    }
+</script>
+
+
+
+
+<script>
+    async function fetchOrderBook() {
+        try {
+            const ticker = "{{ ticker }}";
+            const response = await fetch('http://127.0.0.1:8000/api/' + ticker);
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            const orderBookBody = document.getElementById('orderBookContainer');
+            const data = await response.json();
+
+            // Генерируем строки для 'ask'
+            for (let i = 0; i < data.order_book.ask.price.length; i++)
+            {
+                let price = data.order_book.ask.price[i]
+                let num = data.order_book.ask.num[i]
+                const row = document.createElement('tr');
+                row.classList.add('ask');
+                row.style.height = '15px';
+                row.style.width = '50px';
+                row.style.padding = '20px';
+                row.innerHTML = `<td class='ob-td'>${price}</td><td class='ob-td'> ${num} </td><td class='ob-td'></td>`;
+                orderBookBody.appendChild(row);
+            }
+
+            // Генерируем строки для 'bid'
+            for (let i = 0; i < data.order_book.bid.price.length; i++)
+            {
+                let price = data.order_book.bid.price[i]
+                let num = data.order_book.bid.num[i]
+                const row = document.createElement('tr');
+                row.classList.add('bid');
+                row.style.height = '15px';
+                row.style.width = '50px';
+                row.style.padding = '2px';
+                row.innerHTML = `<td class='ob-td'> </td><td class='ob-td'> ${num} </td><td class='ob-td'>${price}</td>`;
+                orderBookBody.appendChild(row);
+            }
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
+        }
+    }
+</script>
+
+<script>
+    async function fetchData()
+    {
+        loadChart()
+        fetchOrderBook()
+        {% if user.is_authenticated %}
+        fetchDepo()
+        fetchPositions()
+        fetchOrders()
+        {% endif %}
+    }
+    window.onload = fetchData;
+</script>
+
+
+<script>
+<!--  Добавление событя на нажатие кнопки покупки\продажи  -->
+       document.querySelectorAll('button[name="submit_button"]').forEach(button => {
+        button.addEventListener('click', function(e)
+        {
+            form_data = {}
+            if (button.value.includes('market')){
+                form_data['quantity']=document.getElementById("id_market_order_quantity").value
+            };
+            if (button.value.includes('limit')){
+                form_data['quantity']= document.getElementById("id_limit_order_quantity").value
+                form_data['price']= document.getElementById("id_limit_order_price").value
+            };
+
+            socket.send(JSON.stringify(
+            {
+                'type': 'new_order',
+                'ticker': '{{ ticker }}',
+                'user': '{{ user.pk }}',
+                'button': button.value,
+                'form': form_data,
+            }
+            ));
+        })
+    })
+   </script>
+
+
+<script>
+    let chart;
+<!--    {% if user.is_authenticated %}-->
+    let socket = new WebSocket('ws://127.0.0.1:8000/ws/');
+
+    socket.onopen = function(e) {
+       console.log('Connection established');
+    };
+
+    socket.onmessage = async function(event) {
+        const message = JSON.parse(event.data);
+        console.log(message)
+        if (message.type === 'update_data') {
+            await updateChart(message.price, message.datetime, chart);
+            };
+        if (message.type === 'order_book_update') {
+               await updateOrderBook();
+            };
+
+        if (message.type === 'depo_update') {
+            await fetchDepo()
+            };
+
+        if (message.type === 'positions_update') {
+            await fetchPositions()
+            };
+        if (message.type === 'orders_update') {
+            await fetchOrders()
+            };
+    };
+<!--    {% endif %}-->
+
+    async function updateOrderBook() {
+
+    const orderBookBody= document.getElementById('orderBookContainer');
+    const rows = orderBookBody.getElementsByTagName('tr'); // Получаем все строки таблицы
+    const ticker = "{{ ticker }}";
+    const response = await fetch('http://127.0.0.1:8000/api/' + ticker);
+    if (!response.ok) {
+         throw new Error('Network <re></re>sponse was not ok ' + response.statusText);
+    }
+    const data = await response.json();
+    let rowIndex = 0
+    for (let i = 0; i < data.order_book.ask.price.length; i++)
+            {
+                let price = data.order_book.ask.price[i]
+                let num = data.order_book.ask.num[i]
+                rows[rowIndex].cells[0].textContent = price
+                rows[rowIndex].cells[1].textContent = num
+                rowIndex = rowIndex + 1
+            };
+    for (let i = 0; i < data.order_book.bid.price.length; i++)
+            {
+                let price = data.order_book.bid.price[i]
+                let num = data.order_book.bid.num[i]
+                rows[rowIndex].cells[2].textContent = price
+                rows[rowIndex].cells[1].textContent = num
+                rowIndex = rowIndex + 1
+            };
+    };
+
+
+
+    function updateChart(newTransactionPrice, newTransactionDateTime, chart) {
+        console.log(newTransactionPrice, newTransactionDateTime)
+        let data = chart.data.datasets[0].data;
+        let labels = chart.data.labels;
+        console.log(data)
+        data.shift();
+        labels.shift();
+
+        data.push(newTransactionPrice);
+        labels.push(newTransactionDateTime);
+
+        chart.data.datasets[0].data = data
+        chart.data.labels = labels
+
+        chart.update()
+    };
+
+
+</script>
+
+<script>
+    let haveValue = false
+    async function fetchDepo() {
+        const tbody = document.getElementById('depoTable').getElementsByTagName('tbody')[0];
+        const response = await fetch('http://127.0.0.1:8000/api/user/' + '{{ user.pk }}' + '/depo');
+        const data = await response.json();
+        // Обновление существующих или добавление новых данных
+            if (haveValue) {
+            row = tbody.getElementsByTagName('tr')[0];
+                row.cells[0].innerText = data.current_equity;
+                row.cells[1].innerText = data.free_equity;
+            } else {
+                // Если позиции нет, создаем новую строку
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${data.current_equity}</td>
+                    <td>${data.free_equity}</td>
+                `;
+                tbody.appendChild(row);
+                haveValue = true;
+            }
+        };
+</script>
+
+
+<script>
+    async function fetchPositions() {
+        const tbody = document.getElementById('positionsTable').getElementsByTagName('tbody')[0];
+        const response = await fetch('http://127.0.0.1:8000/api/user/' + '{{ user.pk }}' + '/positions');
+        const data = await response.json();
+
+        const currentPositions = {}; // Объект для хранения текущих позиций
+
+        // Заполняем текущие позиции для сравнения
+        Array.from(tbody.children).forEach(row => {
+            const symbol = row.cells[0].innerText; // Получаем символ позиции
+            currentPositions[symbol] = row; // Сохраняем текущую строку
+        });
+
+        // Обновление существующих или добавление новых данных
+        data.positions.forEach(position => {
+            const direction = position.quantity > 0 ? 'Покупка' : 'Продажа'; // Логика определения направления
+
+            if (currentPositions[position.symbol]) {
+                // Если позиция уже существует, обновляем её
+                const row = currentPositions[position.symbol];
+                row.cells[1].innerText = position.average_price.toFixed(2);
+                row.cells[2].innerText = position.quantity;
+                row.cells[3].innerText = direction;
+                row.cells[4].innerText = position.pnl;
+            } else {
+                // Если позиции нет, создаем новую строку
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${position.symbol}</td>
+                    <td>${position.average_price.toFixed(2)}</td>
+                    <td>${position.quantity}</td>
+                    <td>${direction}</td>
+                    <td>${position.pnl}</td>
+                `;
+                tbody.appendChild(row);
+            }
+        });
+
+        // Удаление строк, которые больше не существуют
+        for (let symbol in currentPositions) {
+            if (!data.positions.some(position => position.symbol === symbol)) {
+                tbody.removeChild(currentPositions[symbol]);
+            }
+        }
+    }
+</script>
+
+
+<script>
+    function setEventOnButtons() {
+        document.querySelectorAll('button[name="closeOrder-button"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            console.log('closebtn')
+            socket.send(JSON.stringify({
+                'type': 'close_order',
+                'order_pk': button.value,
+            }));
+        });
+    });
+    }
+</script>
+
+
+<script>
+async function fetchOrders() {
+    const tbody = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
+    const response = await fetch('http://127.0.0.1:8000/api/user/' + '{{ user.pk }}' + '/orders');
+    const data = await response.json();
+
+    const currentOrders = {}; // Объект для хранения текущих заказов
+
+    // Заполняем текущие заказы для сравнения
+    Array.from(tbody.children).forEach(row => {
+        //const orderId = row.querySelector('button').value; // Получаем идентификатор заказа
+        orderId = row.cells[0].textContent
+
+
+
+        currentOrders[orderId] = row; // Сохраняем текущую строку для обновления
+    });
+
+    data.orders.forEach(order => {
+
+        const orderId = order.id;
+        var price = ''
+                    if (order.order_type == 'LIMIT') {
+                    price = order.price.toFixed(0)
+                    }
+        // Проверяем, есть ли такой заказ в текущем списке
+        if (currentOrders[orderId]) {
+            // Обновляем существующую строку
+            const row = currentOrders[orderId];
+
+            row.innerHTML = `
+                <td name="idd" style="display: none">${order.id}</td>
+                <td>${order.symbol}</td>
+                <td>${price}</td>
+                <td>${order.initial_quantity}</td>
+                <td>${order.quantity - order.quantity}</td>
+                <td>${order.direction}</td>
+                <td>${order.status}</td>
+                ${order.status === 'PLACED' ?
+                    `<td><button type="button" name="closeOrder-button" value="${order.id}">Отменить</button></td>`
+                    : '<td></td>'
+                }
+            `;
+        } else {
+            // Создаем новую строку, если заказа нет в текущем списке
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td name="idd" style="display: none">${order.id}</td>
+                <td>${order.symbol}</td>
+                <td>${price}</td>
+                <td>${order.initial_quantity}</td>
+                <td>${order.initial_quantity - order.quantity}</td>
+                <td>${order.direction}</td>
+                <td>${order.status}</td>
+                ${order.status === 'PLACED' ?
+                    `<td><button type="button" name="closeOrder-button" value="${order.id}">Отменить</button></td>`
+                    : '<td></td>'
+                }
+            `;
+            tbody.appendChild(row);
+        }
+    });
+
+    // (Опционально) Удалим заказы, которые больше не актуальны
+    for (const orderId in currentOrders) {
+        if (!data.orders.find(order => order.id === parseInt(orderId))) {
+            tbody.removeChild(currentOrders[orderId]);
+        }
+    }
+
+    setEventOnButtons();
+};
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
