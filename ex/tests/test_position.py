@@ -1,14 +1,25 @@
-#from unittest import TestCase
+# from unittest import TestCase
 from django.test import TestCase
-from ex.models import Position, Symbol, Depo, LimitOrder, AbstractOrder, MarketOrder, Transaction
-from services.transaction_service import resolve_order, is_valid_market_order, \
-    get_position_by_order, make_market_transaction
+from ex.models import (
+    Position,
+    Symbol,
+    Depo,
+    LimitOrder,
+    AbstractOrder,
+    MarketOrder,
+    Transaction,
+)
+from services.transaction_service import (
+    resolve_order,
+    _get_position_by_order,
+    make_market_transaction,
+)
 
 
 class TestDepo(TestCase):
     def test_depo_creation(self):
-        tickers = ['t1','t2','t3']
-        [Symbol.objects.create(ticker=t, full_name=t+'fn') for t in tickers]
+        tickers = ["t1", "t2", "t3"]
+        [Symbol.objects.create(ticker=t, full_name=t + "fn") for t in tickers]
         depo = Depo.objects.create(start_equity=10000)
 
         self.assertEqual(depo.is_init, True)
@@ -18,24 +29,36 @@ class TestDepo(TestCase):
         self.assertEqual(depo.current_equity, 10000)
 
     def test_position_getter_and_update(self):
-        ticker = 'tpu'
-        symbol = Symbol.objects.create(ticker=ticker, full_name=ticker + 'fn')
+        ticker = "tpu"
+        symbol = Symbol.objects.create(ticker=ticker, full_name=ticker + "fn")
         maker_depo = Depo.objects.create(start_equity=10000)
         taker_depo = Depo.objects.create(start_equity=10000)
-        lo1 = LimitOrder.objects.create(initiator=maker_depo, symbol=symbol,
-                                        dir=AbstractOrder.OrderDirection.BUY,
-                                        price=499, quantity=5)
-        lo2 = LimitOrder.objects.create(initiator=maker_depo, symbol=symbol,
-                                        dir=AbstractOrder.OrderDirection.SELL,
-                                        price=501, quantity=5)
+        lo1 = LimitOrder.objects.create(
+            initiator=maker_depo,
+            symbol=symbol,
+            direction=AbstractOrder.OrderDirection.BUY,
+            price=499,
+            quantity=5,
+        )
+        lo2 = LimitOrder.objects.create(
+            initiator=maker_depo,
+            symbol=symbol,
+            direction=AbstractOrder.OrderDirection.SELL,
+            price=501,
+            quantity=5,
+        )
         resolve_order(lo1)
         resolve_order(lo2)
 
-        mo = MarketOrder.objects.create(initiator=taker_depo, symbol=symbol, quantity=2,
-                                        dir=AbstractOrder.OrderDirection.SELL)
+        mo = MarketOrder.objects.create(
+            initiator=taker_depo,
+            symbol=symbol,
+            quantity=2,
+            direction=AbstractOrder.OrderDirection.SELL,
+        )
 
-        #resolve_order(mo)
-        pos = get_position_by_order(mo)
+        # resolve_order(mo)
+        pos = _get_position_by_order(mo)
         pos.update_position(499, 2)
 
         self.assertEqual(pos.average_price, 499)
@@ -48,7 +71,6 @@ class TestDepo(TestCase):
         pos.update_position(499, -2)
         self.assertEqual(pos.average_price, 499)
         self.assertEqual(pos.quantity, -2)
-
 
     # def test_pnl(self):
     #     ticker = 'tpnl'
@@ -94,31 +116,44 @@ class TestDepo(TestCase):
     #     self.assertEqual(mo_buy.status, AbstractOrder.OrderStatus.FILLED)
     #     self.assertEqual(pos.pnl, -1)
 
-
-
-
-
     def test_transaction(self):
-        ticker = 'ttrn'
-        symbol = Symbol.objects.create(ticker=ticker, full_name=ticker + 'fn')
+        ticker = "ttrn"
+        symbol = Symbol.objects.create(ticker=ticker, full_name=ticker + "fn")
         maker_depo = Depo.objects.create(start_equity=10000)
         taker_depo = Depo.objects.create(start_equity=10000)
-        lo = LimitOrder.objects.create(initiator=maker_depo, symbol=symbol,
-                                       dir=AbstractOrder.OrderDirection.BUY, price=500, quantity=5)
-        mo = MarketOrder.objects.create(initiator=taker_depo, symbol=symbol, quantity=2,
-                                        dir=AbstractOrder.OrderDirection.SELL)
+        lo = LimitOrder.objects.create(
+            initiator=maker_depo,
+            symbol=symbol,
+            direction=AbstractOrder.OrderDirection.BUY,
+            price=500,
+            quantity=5,
+        )
+        mo = MarketOrder.objects.create(
+            initiator=taker_depo,
+            symbol=symbol,
+            quantity=2,
+            direction=AbstractOrder.OrderDirection.SELL,
+        )
         make_market_transaction(lo, mo)
 
-
     def test_market_deals(self):
-        ticker = 'tpot'
-        symbol = Symbol.objects.create(ticker=ticker, full_name=ticker + 'fn')
+        ticker = "tpot"
+        symbol = Symbol.objects.create(ticker=ticker, full_name=ticker + "fn")
         maker_depo = Depo.objects.create(start_equity=10000)
         taker_depo = Depo.objects.create(start_equity=10000)
-        lo = LimitOrder.objects.create(initiator=maker_depo, symbol=symbol,
-                        dir=AbstractOrder.OrderDirection.BUY, price=500, quantity=5)
-        mo = MarketOrder.objects.create(initiator=taker_depo, symbol=symbol, quantity=2,
-                         dir=AbstractOrder.OrderDirection.SELL)
+        lo = LimitOrder.objects.create(
+            initiator=maker_depo,
+            symbol=symbol,
+            direction=AbstractOrder.OrderDirection.BUY,
+            price=500,
+            quantity=5,
+        )
+        mo = MarketOrder.objects.create(
+            initiator=taker_depo,
+            symbol=symbol,
+            quantity=2,
+            direction=AbstractOrder.OrderDirection.SELL,
+        )
 
         resolve_order(lo)
         self.assertEqual(lo.status, AbstractOrder.OrderStatus.PLACED)
@@ -133,10 +168,19 @@ class TestDepo(TestCase):
         MarketOrder.objects.all().delete()
         Transaction.objects.all().delete()
 
-        lo = LimitOrder.objects.create(initiator=maker_depo, symbol=symbol,
-                        dir=AbstractOrder.OrderDirection.BUY, price=500, quantity=5)
-        mo = MarketOrder.objects.create(initiator=taker_depo, symbol=symbol, quantity=5,
-                          dir=AbstractOrder.OrderDirection.SELL)
+        lo = LimitOrder.objects.create(
+            initiator=maker_depo,
+            symbol=symbol,
+            direction=AbstractOrder.OrderDirection.BUY,
+            price=500,
+            quantity=5,
+        )
+        mo = MarketOrder.objects.create(
+            initiator=taker_depo,
+            symbol=symbol,
+            quantity=5,
+            direction=AbstractOrder.OrderDirection.SELL,
+        )
 
         resolve_order(lo)
         self.assertEqual(lo.status, AbstractOrder.OrderStatus.PLACED)
@@ -148,20 +192,28 @@ class TestDepo(TestCase):
         self.assertEqual(lo.status, AbstractOrder.OrderStatus.FILLED)
         self.assertEqual(lo.quantity, 0)
 
-
     def test_depo_free_equity(self):
-        ticker = 'tsfe'
-        symbol = Symbol.objects.create(ticker=ticker, full_name=ticker + 'fn')
+        ticker = "tsfe"
+        symbol = Symbol.objects.create(ticker=ticker, full_name=ticker + "fn")
         maker_depo = Depo.objects.create(start_equity=10000)
-        lo = LimitOrder.objects.create(initiator=maker_depo, symbol=symbol,
-                        dir=AbstractOrder.OrderDirection.BUY, price=500, quantity=5)
+        lo = LimitOrder.objects.create(
+            initiator=maker_depo,
+            symbol=symbol,
+            direction=AbstractOrder.OrderDirection.BUY,
+            price=500,
+            quantity=5,
+        )
         resolve_order(lo)
         self.assertEqual(maker_depo.open_orders_equity, 2500)
         self.assertEqual(maker_depo.free_equity, 7500)
 
-        lo2 = LimitOrder.objects.create(initiator=maker_depo, symbol=symbol,
-                                       dir=AbstractOrder.OrderDirection.SELL, price=1000, quantity=5)
+        lo2 = LimitOrder.objects.create(
+            initiator=maker_depo,
+            symbol=symbol,
+            direction=AbstractOrder.OrderDirection.SELL,
+            price=1000,
+            quantity=5,
+        )
         resolve_order(lo2)
         self.assertEqual(maker_depo.open_orders_equity, 7500)
         self.assertEqual(maker_depo.free_equity, 2500)
-

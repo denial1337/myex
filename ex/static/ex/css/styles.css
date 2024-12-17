@@ -36,7 +36,7 @@ nav ul li a:hover {
     padding: 15px; /* Отступ внутри карточки */
     box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Тень карточки */
     transition: transform 0.2s; /* Анимация при наведении */
-    width: 150px; /* Ширина карточки */
+    width: 250px; /* Ширина карточки */
 }
 
 .symbol-card:hover {

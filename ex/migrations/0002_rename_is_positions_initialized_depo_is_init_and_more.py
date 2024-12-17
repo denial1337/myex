@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ex', '0001_initial'),
+        ("ex", "0001_initial"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='depo',
-            old_name='is_positions_initialized',
-            new_name='is_init',
+            model_name="depo",
+            old_name="is_positions_initialized",
+            new_name="is_init",
         ),
         migrations.AddField(
-            model_name='depo',
-            name='risk_rate',
+            model_name="depo",
+            name="risk_rate",
             field=models.FloatField(default=0),
         ),
     ]

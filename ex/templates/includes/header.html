@@ -9,6 +9,7 @@
     border-bottom: 1px solid #ddd; /* Нежная нижняя граница */
 }
 
+
         .header-left,
 .header-right {
     flex: 0 1 auto; /* Элементы слева и справа фиксированы */
@@ -17,14 +18,35 @@
 .header-center {
     flex: 1; /* Пустое место занимает всё доступное пространство */
 }
+        .clickable {
+        cursor: pointer;
+        transition: background-color 0.2s; /* плавный переход */
+    }
+    .clickable:active {
+        background-color: transparent; /* цвет фона при нажатии */
+    }
+        a {
+    text-decoration: none; /* Убираем подчеркивание */
+    color: white; /* Устанавливаем цвет текста */
+}
+
+a:visited {
+    color: white; /* Цвет текста для посещенных ссылок */
+}
+
+a:hover {
+    color: white; /* Цвет текста при наведении */
+}
     </style>
 </head>
-<header style="background-color: #4CAF50; max-width: 100%; color: white;">
-    <div class="header-left" style="margin-bottom: 10px;">
-                    <a href="{% url 'homepage' %}">
+<header style="background-color: #476d85; max-width: 100%; color: white;">
+    <a href="{% url 'homepage' %}">
+        <div class="header-left clickable" style="height:100%, margin-bottom: 10px;">
+
                     <h1 class="header-h1">Mamont Stonks</h1>
-                    </a>
-    </div>
+
+        </div>
+    </a>
                 {% if user.is_authenticated %}
                     <div class="header-rigt">Пользователь: <strong>{{ user.username }}</strong>
                     <a href="{% url 'logout' %}" style="color: white; text-decoration: underline;">Logout</a></div>

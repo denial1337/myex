@@ -6,136 +6,351 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Symbol',
+            name="Symbol",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ticker', models.CharField(max_length=4, unique=True)),
-                ('full_name', models.CharField(max_length=20, unique=True)),
-                ('best_bid', models.PositiveIntegerField(default=0)),
-                ('best_ask', models.PositiveIntegerField(default=2147483647)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("ticker", models.CharField(max_length=4, unique=True)),
+                ("full_name", models.CharField(max_length=20, unique=True)),
+                ("best_bid", models.PositiveIntegerField(default=0)),
+                ("best_ask", models.PositiveIntegerField(default=2147483647)),
             ],
         ),
         migrations.CreateModel(
-            name='Depo',
+            name="Depo",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_equity', models.FloatField(default=0)),
-                ('current_equity', models.FloatField(null=True)),
-                ('is_algo', models.BooleanField(default=False)),
-                ('is_positions_initialized', models.BooleanField(default=False)),
-                ('user', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("start_equity", models.FloatField(default=0)),
+                ("current_equity", models.FloatField(null=True)),
+                ("is_algo", models.BooleanField(default=False)),
+                ("is_positions_initialized", models.BooleanField(default=False)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='StopOrder',
+            name="StopOrder",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('dir', models.CharField(choices=[('BUY', 'Buy'), ('SELL', 'Sell')])),
-                ('datetime', models.DateTimeField(auto_now=True)),
-                ('quantity', models.PositiveIntegerField()),
-                ('status', models.CharField(choices=[('INITIATED', 'Initiated'), ('PLACED', 'Placed'), ('FILLED', 'Filled'), ('REJECTED', 'Rejected'), ('ERROR', 'Error')], default='INITIATED')),
-                ('trigger_price', models.IntegerField()),
-                ('initiator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.depo')),
-                ('symbol', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.symbol')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("dir", models.CharField(choices=[("BUY", "Buy"), ("SELL", "Sell")])),
+                ("datetime", models.DateTimeField(auto_now=True)),
+                ("quantity", models.PositiveIntegerField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("INITIATED", "Initiated"),
+                            ("PLACED", "Placed"),
+                            ("FILLED", "Filled"),
+                            ("REJECTED", "Rejected"),
+                            ("ERROR", "Error"),
+                        ],
+                        default="INITIATED",
+                    ),
+                ),
+                ("trigger_price", models.IntegerField()),
+                (
+                    "initiator",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.depo"
+                    ),
+                ),
+                (
+                    "symbol",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.symbol"
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Position',
+            name="Position",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('average_price', models.FloatField(default=0)),
-                ('quantity', models.IntegerField(default=0)),
-                ('depo', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.depo')),
-                ('symbol', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='ex.symbol')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("average_price", models.FloatField(default=0)),
+                ("quantity", models.IntegerField(default=0)),
+                (
+                    "depo",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.depo"
+                    ),
+                ),
+                (
+                    "symbol",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING, to="ex.symbol"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='MarketOrder',
+            name="MarketOrder",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('dir', models.CharField(choices=[('BUY', 'Buy'), ('SELL', 'Sell')])),
-                ('datetime', models.DateTimeField(auto_now=True)),
-                ('quantity', models.PositiveIntegerField()),
-                ('status', models.CharField(choices=[('INITIATED', 'Initiated'), ('PLACED', 'Placed'), ('FILLED', 'Filled'), ('REJECTED', 'Rejected'), ('ERROR', 'Error')], default='INITIATED')),
-                ('initiator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.depo')),
-                ('symbol', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.symbol')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("dir", models.CharField(choices=[("BUY", "Buy"), ("SELL", "Sell")])),
+                ("datetime", models.DateTimeField(auto_now=True)),
+                ("quantity", models.PositiveIntegerField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("INITIATED", "Initiated"),
+                            ("PLACED", "Placed"),
+                            ("FILLED", "Filled"),
+                            ("REJECTED", "Rejected"),
+                            ("ERROR", "Error"),
+                        ],
+                        default="INITIATED",
+                    ),
+                ),
+                (
+                    "initiator",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.depo"
+                    ),
+                ),
+                (
+                    "symbol",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.symbol"
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='LimitOrder',
+            name="LimitOrder",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('dir', models.CharField(choices=[('BUY', 'Buy'), ('SELL', 'Sell')])),
-                ('datetime', models.DateTimeField(auto_now=True)),
-                ('quantity', models.PositiveIntegerField()),
-                ('status', models.CharField(choices=[('INITIATED', 'Initiated'), ('PLACED', 'Placed'), ('FILLED', 'Filled'), ('REJECTED', 'Rejected'), ('ERROR', 'Error')], default='INITIATED')),
-                ('price', models.IntegerField()),
-                ('initiator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.depo')),
-                ('symbol', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.symbol')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("dir", models.CharField(choices=[("BUY", "Buy"), ("SELL", "Sell")])),
+                ("datetime", models.DateTimeField(auto_now=True)),
+                ("quantity", models.PositiveIntegerField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("INITIATED", "Initiated"),
+                            ("PLACED", "Placed"),
+                            ("FILLED", "Filled"),
+                            ("REJECTED", "Rejected"),
+                            ("ERROR", "Error"),
+                        ],
+                        default="INITIATED",
+                    ),
+                ),
+                ("price", models.IntegerField()),
+                (
+                    "initiator",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.depo"
+                    ),
+                ),
+                (
+                    "symbol",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.symbol"
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='TakeOrder',
+            name="TakeOrder",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('dir', models.CharField(choices=[('BUY', 'Buy'), ('SELL', 'Sell')])),
-                ('datetime', models.DateTimeField(auto_now=True)),
-                ('quantity', models.PositiveIntegerField()),
-                ('status', models.CharField(choices=[('INITIATED', 'Initiated'), ('PLACED', 'Placed'), ('FILLED', 'Filled'), ('REJECTED', 'Rejected'), ('ERROR', 'Error')], default='INITIATED')),
-                ('trigger_price', models.IntegerField()),
-                ('initiator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.depo')),
-                ('symbol', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.symbol')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("dir", models.CharField(choices=[("BUY", "Buy"), ("SELL", "Sell")])),
+                ("datetime", models.DateTimeField(auto_now=True)),
+                ("quantity", models.PositiveIntegerField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("INITIATED", "Initiated"),
+                            ("PLACED", "Placed"),
+                            ("FILLED", "Filled"),
+                            ("REJECTED", "Rejected"),
+                            ("ERROR", "Error"),
+                        ],
+                        default="INITIATED",
+                    ),
+                ),
+                ("trigger_price", models.IntegerField()),
+                (
+                    "initiator",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.depo"
+                    ),
+                ),
+                (
+                    "symbol",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.symbol"
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Transaction',
+            name="Transaction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ticker', models.CharField(max_length=4)),
-                ('price', models.PositiveIntegerField(default=0)),
-                ('volume', models.PositiveIntegerField(default=0)),
-                ('datetime', models.DateTimeField(auto_now=True)),
-                ('taker_object_id', models.PositiveIntegerField()),
-                ('maker_order', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='ex.limitorder')),
-                ('taker_content_type', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='contenttypes.contenttype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("ticker", models.CharField(max_length=4)),
+                ("price", models.PositiveIntegerField(default=0)),
+                ("volume", models.PositiveIntegerField(default=0)),
+                ("datetime", models.DateTimeField(auto_now=True)),
+                ("taker_object_id", models.PositiveIntegerField()),
+                (
+                    "maker_order",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="ex.limitorder",
+                    ),
+                ),
+                (
+                    "taker_content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="contenttypes.contenttype",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='TriggerOrder',
+            name="TriggerOrder",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('dir', models.CharField(choices=[('BUY', 'Buy'), ('SELL', 'Sell')])),
-                ('datetime', models.DateTimeField(auto_now=True)),
-                ('quantity', models.PositiveIntegerField()),
-                ('status', models.CharField(choices=[('INITIATED', 'Initiated'), ('PLACED', 'Placed'), ('FILLED', 'Filled'), ('REJECTED', 'Rejected'), ('ERROR', 'Error')], default='INITIATED')),
-                ('initiator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.depo')),
-                ('limit_order', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='ex.limitorder')),
-                ('symbol', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ex.symbol')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("dir", models.CharField(choices=[("BUY", "Buy"), ("SELL", "Sell")])),
+                ("datetime", models.DateTimeField(auto_now=True)),
+                ("quantity", models.PositiveIntegerField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("INITIATED", "Initiated"),
+                            ("PLACED", "Placed"),
+                            ("FILLED", "Filled"),
+                            ("REJECTED", "Rejected"),
+                            ("ERROR", "Error"),
+                        ],
+                        default="INITIATED",
+                    ),
+                ),
+                (
+                    "initiator",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.depo"
+                    ),
+                ),
+                (
+                    "limit_order",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.limitorder"
+                    ),
+                ),
+                (
+                    "symbol",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ex.symbol"
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]
