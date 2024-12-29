@@ -21,6 +21,7 @@ from django.db.models import (
     Sum,
 )
 
+
 MAX_DIGITS = 15
 DECIMAL_PLACES = 2
 MAX_TICKER_LENGTH = 4
@@ -28,75 +29,20 @@ MAX_TICKER_LENGTH = 4
 
 # FIXME добавить изменение депозита после закрытия позици
 class Depo(models.Model):
-    @property
-    def free_equity(self):
-        positions = Position.objects.select_related("depo").filter(depo=self)
-        return (
-            self.current_equity
-            - sum([p.equity for p in positions])
-            - self.open_orders_equity
-        )
-
-    @property
-    def open_orders_equity(self):
-        return (
-            LimitOrder.objects.select_related("initiator")
-            .filter(initiator=self, status=AbstractOrder.OrderStatus.PLACED)
-            .aggregate(total_equity=Sum(F("quantity") * F("price")))["total_equity"]
-            or 0
-        )
-
-    def save(self, *args, **kwargs) -> None:
-        if self.current_equity is None:
-            self.current_equity = self.start_equity
-
-        super().save(*args, **kwargs)
-        if not self.is_init:
-            [Position.objects.create(depo=self, symbol=s) for s in Symbol.objects.all()]
-            self.risk_rate = random()
-            self.is_init = True
-
     user = OneToOneField(User, on_delete=CASCADE, null=True)
     risk_rate = FloatField(default=0)
     start_equity = FloatField(default=0)
     current_equity = FloatField(null=True)
     is_algo = BooleanField(default=False)
-    is_init = BooleanField(default=False)  # FIXME ultra mega cringe?
 
 
 class Symbol(models.Model):
     """conatins info about stock, currency and others intstruments"""
 
-    @property
-    def bid_count(self):
-        return (
-            LimitOrder.objects.filter(
-                direction=AbstractOrder.OrderDirection.BUY,
-                status=AbstractOrder.OrderStatus.PLACED,
-                symbol=self,
-            ).aggregate(Sum("quantity"))["quantity__sum"]
-            or 0
-        )
-
-    @property
-    def ask_count(self):
-        return (
-            LimitOrder.objects.filter(
-                direction=AbstractOrder.OrderDirection.SELL,
-                status=AbstractOrder.OrderStatus.PLACED,
-                symbol=self,
-            ).aggregate(Sum("quantity"))["quantity__sum"]
-            or 0
-        )
-
-    @property
-    def volume(self):
-        pass
-
     ticker = CharField(max_length=MAX_TICKER_LENGTH, unique=True)
     full_name = CharField(max_length=20, unique=True)
-    best_bid = PositiveIntegerField(default=0)
-    best_ask = PositiveIntegerField(default=2147483647)  # max int for psql
+    # best_bid = PositiveIntegerField(default=0)
+    # best_ask = PositiveIntegerField(default=2147483647)  # max int for psql
 
     def __repr__(self):
         return f"{self.ticker}"
@@ -185,18 +131,6 @@ class Position(models.Model):
     @property
     def sign(self):
         return 1 if self.quantity > 0 else -1
-
-    @property
-    def equity(self):
-        return abs(self.quantity * self.average_price) + self.pnl
-
-    @property
-    def pnl(self):
-        if self.quantity == 0:
-            return 0
-        actual_price = self.symbol.best_bid if self.sign == 1 else self.symbol.best_ask
-        print(actual_price)
-        return round(self.quantity * (actual_price - self.average_price), 2)
 
     symbol = ForeignKey(Symbol, on_delete=DO_NOTHING)
     depo = ForeignKey(Depo, on_delete=CASCADE)

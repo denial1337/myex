@@ -14,6 +14,7 @@ def sign_up(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=True)
+
             create_depo_for_new_user(user)
             login(request, user)
             return redirect("/")

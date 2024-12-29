@@ -1,4 +1,6 @@
 from ex.models import AbstractOrder, MarketOrder, LimitOrder
+from services.broker_service import free_equity
+from services.symbol_service import bid_count, ask_count
 
 
 def _get_average_price_for_market_order(order):
@@ -6,9 +8,9 @@ def _get_average_price_for_market_order(order):
     # тут некоторое допущение, я пропущу сложную агрегацию для вычисления
     # средней цены рыночной заявки и просто возьму лучшую цену
     return (
-        order.symbol.best_ask
+        ask_count(order.symbol)
         if order.direction == AbstractOrder.OrderDirection.BUY
-        else order.symbol.best_bid
+        else bid_count(order.symbol)
     )
 
 
@@ -16,9 +18,9 @@ def _get_maker_price(order):
     match order:
         case MarketOrder():
             return (
-                order.symbol.best_ask
+                ask_count(order.symbol)
                 if order.direction == AbstractOrder.OrderDirection.BUY
-                else order.symbol.best_bid
+                else bid_count(order.symbol)
             )
         case LimitOrder():
             return order.price
@@ -26,16 +28,15 @@ def _get_maker_price(order):
 
 
 def _is_valid_market_order(order: MarketOrder):
-    if (
-        order.initiator.free_equity
-        < order.quantity * _get_average_price_for_market_order(order)
-    ):
+    if free_equity(
+        order.initiator
+    ) < order.quantity * _get_average_price_for_market_order(order):
         return False
 
     maker_orders_count = (
-        order.symbol.ask_count
+        ask_count(order.symbol)
         if order.direction == AbstractOrder.OrderDirection.BUY
-        else (order.symbol.bid_count)
+        else bid_count(order.symbol)
     )
 
     if order.quantity > maker_orders_count:
@@ -48,7 +49,7 @@ def _is_valid_limit_order(order: LimitOrder):
     depo = order.initiator
     maker_price = _get_maker_price(order)
 
-    return depo.free_equity > order.quantity * maker_price
+    return free_equity(depo) > order.quantity * maker_price
 
 
 # FIXME подправить валидация для обратной сделки

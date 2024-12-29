@@ -31,11 +31,11 @@ def _push_ending_condition_for_market_order(order):
 
 
 def _push_ending_condition_for_buy_limit_order(order):
-    return order.quantity == 0 or order.symbol.best_ask > order.price
+    return order.quantity == 0 or get_best_ask(order.symbol) > order.price
 
 
 def _push_ending_condition_for_sell_limit_order(order):
-    return order.quantity == 0 or order.symbol.best_bid < order.price
+    return order.quantity == 0 or get_best_bid(order.symbol) < order.price
 
 
 def _push_taker_order(order, get_maker_orders_func, push_ending_condition):
@@ -59,6 +59,7 @@ def _update_positions_after_transaction(transaction: Transaction):
     if transaction.maker_order.direction == AbstractOrder.OrderDirection.BUY:
         maker_pos.update_position(transaction.price, transaction.volume)
         taker_pos.update_position(transaction.price, -transaction.volume)
+        return
 
     if transaction.maker_order.direction == AbstractOrder.OrderDirection.SELL:
         maker_pos.update_position(transaction.price, -transaction.volume)
@@ -112,6 +113,7 @@ def resolve_order(order):
         _resolve_market_order(order)
     if isinstance(order, LimitOrder):
         _resolve_limit_order(order)
+
     update_best_bidask(order.symbol)
 
 
@@ -142,14 +144,13 @@ def _resolve_market_order(order: MarketOrder):
 
 
 def _resolve_limit_order(order: LimitOrder):
-    if (
-        order.direction == LimitOrder.OrderDirection.BUY
-        and order.price >= order.symbol.best_ask
+    if order.direction == LimitOrder.OrderDirection.BUY and order.price >= get_best_ask(
+        order.symbol
     ):
         _push_taker_order(order, get_ask, _push_ending_condition_for_buy_limit_order)
     elif (
         order.direction == LimitOrder.OrderDirection.SELL
-        and order.price <= order.symbol.best_bid
+        and order.price <= get_best_bid(order.symbol)
     ):
         _push_taker_order(order, get_bid, _push_ending_condition_for_sell_limit_order)
 

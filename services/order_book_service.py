@@ -1,4 +1,9 @@
-from services.symbol_service import get_symbol_by_ticker, update_best_bidask
+from services.symbol_service import (
+    get_symbol_by_ticker,
+    update_best_bidask,
+    get_best_ask,
+    get_best_bid,
+)
 from ex.models import LimitOrder, Symbol, AbstractOrder
 
 MAX_LIMIT = 1000
@@ -9,8 +14,8 @@ DEPTH = 10
 def get_serialized_order_book(symbol):
     result = {}
     update_best_bidask(symbol)
-    best_ask = Symbol.objects.get(ticker=symbol.ticker).best_ask
-    best_bid = Symbol.objects.get(ticker=symbol.ticker).best_bid
+    best_ask = get_best_ask(Symbol.objects.get(ticker=symbol.ticker))
+    best_bid = get_best_bid(Symbol.objects.get(ticker=symbol.ticker))
 
     ask_prices = list(range(best_ask + DEPTH - 1, best_ask - 1, -1))
     asks = [

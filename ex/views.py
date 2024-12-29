@@ -1,5 +1,3 @@
-from dataclasses import fields
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
@@ -12,6 +10,7 @@ from django.db.models import Q, QuerySet
 from itertools import chain
 
 from services.DTO_service import dto_to_order, api_request_to_dto, view_request_to_order
+from services.broker_service import get_pnl, free_equity
 from services.context_service import get_context_by_ticker
 from services.order_book_service import get_symbol_by_ticker, get_serialized_order_book
 from services.transaction_service import resolve_order
@@ -61,7 +60,7 @@ def user_depo_api(request, user_pk):
             return JsonResponse({"error": f"No depo with user pk {user_pk}"})
         depo = Depo.objects.get(user=user)
         return JsonResponse(
-            {"current_equity": depo.current_equity, "free_equity": depo.free_equity}
+            {"current_equity": depo.current_equity, "free_equity": free_equity(depo)}
         )
 
 
@@ -76,7 +75,7 @@ def user_positions_api(request, user_pk):
         if depo is None:
             return JsonResponse({"error": f"No depo with user pk {user_pk}"})
         positions = Position.objects.filter(Q(depo=depo) & ~Q(quantity=0))
-        pnls = [pos.pnl for pos in positions]
+        pnls = [get_pnl(pos) for pos in positions]
         print(pnls, positions)
         positions = [model_to_dict(pos) for pos in positions if pos.quantity != 0]
         for pos, pnl in zip(positions, pnls):
@@ -142,7 +141,9 @@ def depo_view_api(request, depo_pk):
 
 class HomepageAPI(View):
     def get(self, request, *args, **kwargs):
-        tickers = list(Symbol.objects.all().values("ticker", "best_bid", "best_ask"))
+        symbols = Symbol.objects.all()
+
+        tickers = list(Symbol.objects.all().values("ticker"))
         return JsonResponse({"symbols": tickers})
 
 
