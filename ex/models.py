@@ -1,4 +1,3 @@
-from random import random
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -9,16 +8,11 @@ from django.db.models import (
     IntegerField,
     DateTimeField,
     OneToOneField,
-    F,
     ForeignKey,
     CASCADE,
     DO_NOTHING,
-    DecimalField,
     BooleanField,
-    Choices,
-    TextChoices,
     FloatField,
-    Sum,
 )
 
 
@@ -71,7 +65,7 @@ class AbstractOrder(models.Model):
         if not self.is_init:
             self.initial_quantity = self.quantity
             self.is_init = True
-        print(self.quantity, self.initial_quantity)
+        #print(self.quantity, self.initial_quantity)
         super().save(*args, **kwargs)
 
     initiator = ForeignKey(Depo, on_delete=CASCADE)

@@ -1,4 +1,3 @@
-from django.db.models import Sum
 from django.test import TestCase
 
 from ex.models import Symbol, Depo, LimitOrder, AbstractOrder

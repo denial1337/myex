@@ -1,5 +1,4 @@
 from services.symbol_service import (
-    get_symbol_by_ticker,
     update_best_bidask,
     get_best_ask,
     get_best_bid,
@@ -11,7 +10,7 @@ MIN_LIMIT = 0
 DEPTH = 10
 
 
-def get_serialized_order_book(symbol):
+def get_serialized_order_book(symbol: Symbol) -> dict:
     result = {}
     update_best_bidask(symbol)
     best_ask = get_best_ask(Symbol.objects.get(ticker=symbol.ticker))

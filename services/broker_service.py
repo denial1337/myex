@@ -1,7 +1,7 @@
-import redis
 import requests
-from random import randint, choice
-from django.core.cache import cache
+from random import choice
+
+from django.contrib.auth.models import User
 from django.db.models import Sum, F
 
 from ex.models import Symbol, Depo, Position, LimitOrder, AbstractOrder
@@ -12,7 +12,7 @@ DEPO_START_EQUITY = 1_000_000
 MAKE_DEAL_CHANCE = 50
 
 
-def create_deposit(user=None):
+def create_deposit(user: User | None = None) -> None:
     depo = Depo.objects.create(
         user=user, start_equity=DEPO_START_EQUITY, current_equity=DEPO_START_EQUITY
     )
@@ -20,12 +20,12 @@ def create_deposit(user=None):
         Position.objects.create(depo=depo, symbol=sym)
 
 
-def create_deposits(amount):
+def create_deposits(amount: int) -> None:
     for i in range(amount):
         create_deposit()
 
 
-def get_pnl(position):
+def get_pnl(position: Position) -> float:
     if position.quantity == 0:
         return 0
     actual_price = (
@@ -72,4 +72,4 @@ def start_trading():
 
             url = f"http://127.0.0.1:8000/api/{ticker}/"
             order = create_random_limit_order_dto(depo.pk, ticker)
-            req = requests.post(url, json=order.model_dump())
+            requests.post(url, json=order.model_dump())

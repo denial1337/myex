@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 
-from asgiref.typing import ASGIApplication
-from channels.layers import channel_layers
 from django.conf.global_settings import CSRF_TRUSTED_ORIGINS
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,9 +28,11 @@ SECRET_KEY = "django-insecure-kz17b=el@x%&x7ffpk*9yb(23n@r4b)-ioj-nn)lzom_!&5q94
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "myex-petproject1313.loca.lt"]
+TUNNEL_URL = 'myex-petproject12.serveo.net'
 
-CSRF_TRUSTED_ORIGINS.append("https://myex-petproject1313.loca.lt")
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", TUNNEL_URL]
+
+CSRF_TRUSTED_ORIGINS.append("https://" + TUNNEL_URL)
 
 # Application definition
 

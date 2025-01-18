@@ -1,4 +1,5 @@
-from asgiref.timeout import timeout
+from typing import List
+
 from django.db.models import Sum
 
 from ex.models import LimitOrder, Symbol, AbstractOrder
@@ -6,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.cache import cache
 
 
-def get_symbol_by_ticker(ticker):
+def get_symbol_by_ticker(ticker: str) -> Symbol:
     symbol = cache.get(ticker)
     if symbol:
         print("return from redis")
@@ -15,13 +16,13 @@ def get_symbol_by_ticker(ticker):
     try:
         symbol = Symbol.objects.get(ticker=ticker)
         cache.set(ticker, symbol)
-    except ObjectDoesNotExist as e:
+    except ObjectDoesNotExist:
         print(f'ticker "{ticker}" does not exist')
     finally:
         return symbol
 
 
-def get_best_bid(symbol):
+def get_best_bid(symbol: Symbol) -> int:
     key = "best_bid_" + symbol.ticker
     if best_bid := cache.get(key):
         return best_bid
@@ -43,7 +44,7 @@ def get_best_bid(symbol):
     return best_bid
 
 
-def get_best_ask(symbol):
+def get_best_ask(symbol: Symbol) -> int:
     key = "best_ask_" + symbol.ticker
     if best_ask := cache.get(key):
         return best_ask
@@ -65,7 +66,7 @@ def get_best_ask(symbol):
     return best_ask
 
 
-def bid_count(symbol):
+def bid_count(symbol: Symbol) -> int:
     return (
         LimitOrder.objects.filter(
             direction=AbstractOrder.OrderDirection.BUY,
@@ -76,7 +77,7 @@ def bid_count(symbol):
     )
 
 
-def ask_count(symbol):
+def ask_count(symbol: Symbol) -> int:
     return (
         LimitOrder.objects.filter(
             direction=AbstractOrder.OrderDirection.SELL,
@@ -87,7 +88,7 @@ def ask_count(symbol):
     )
 
 
-def get_ask(symbol):
+def get_ask_limit_orders(symbol: Symbol) -> List[LimitOrder]:
     return (
         LimitOrder.objects
         .filter(
@@ -100,7 +101,7 @@ def get_ask(symbol):
     )
 
 
-def get_bid(symbol):
+def get_bid_limit_orders(symbol: Symbol) -> List[LimitOrder]:
     return (
         LimitOrder.objects
         .filter(
@@ -113,7 +114,7 @@ def get_bid(symbol):
     )
 
 
-def is_active_ask_orders_exist(symbol):
+def is_active_ask_orders_exist(symbol: Symbol) -> bool:
     return (
         LimitOrder.objects
         .filter(
@@ -125,7 +126,7 @@ def is_active_ask_orders_exist(symbol):
     )
 
 
-def is_active_bid_orders_exist(symbol):
+def is_active_bid_orders_exist(symbol: Symbol) -> bool:
     return (
         LimitOrder.objects
         .filter(
@@ -137,7 +138,7 @@ def is_active_bid_orders_exist(symbol):
     )
 
 
-def update_best_bidask(symbol):
+def update_best_bidask(symbol: Symbol) -> None:
     ask_key = "best_ask_" + symbol.ticker
     if is_active_ask_orders_exist(symbol):
         best_ask = (
@@ -169,11 +170,11 @@ def update_best_bidask(symbol):
         cache.set(bid_key, best_bid)
 
 
-def set_default_bidask_for_all_symbols():
+def set_default_bidask_for_all_symbols() -> None:
     for sym in Symbol.objects.all():
         set_default_bidask(sym)
 
 
-def set_default_bidask(symbol):
+def set_default_bidask(symbol: Symbol) -> None:
     symbol.best_ask = 2**31 - 1
     symbol.best_bid = 0

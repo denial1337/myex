@@ -11,9 +11,6 @@ def generate_symbols():
 
 
 def generate(amount):
-    low_price_limit = 1
-    top_price_limit = 1000
-
     ask = [randint(490, 530) for _ in range(amount)]
     bid = [randint(470, 509) for _ in range(amount)]
 
@@ -21,8 +18,6 @@ def generate(amount):
 
     ask_quantity = [randint(3, 50) for _ in range(amount)]
     bid_quantity = [randint(3, 50) for _ in range(amount)]
-
-    print(1)
 
     symbol = Symbol.objects.get(ticker="TLST")
 

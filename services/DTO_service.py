@@ -1,6 +1,7 @@
 import enum
 import json
 
+from django.http import HttpRequest
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from pydantic import BaseModel
@@ -46,7 +47,7 @@ class LimitOrderDTO(OrderDTO):
     price: float
 
 
-def create_market_order_dto(depo_pk, ticker) -> MarketOrderDTO:
+def create_market_order_dto(depo_pk: int, ticker: str) -> MarketOrderDTO:
     return MarketOrderDTO(
         depo_pk=depo_pk,
         order_type=OrderType.MARKET_ORDER,
@@ -56,7 +57,7 @@ def create_market_order_dto(depo_pk, ticker) -> MarketOrderDTO:
     )
 
 
-def create_random_limit_order_dto(depo_pk, ticker) -> LimitOrderDTO:
+def create_random_limit_order_dto(depo_pk: int, ticker: str) -> LimitOrderDTO:
     delta = randint(-20, 20)
     return LimitOrderDTO(
         depo_pk=depo_pk,
@@ -85,12 +86,12 @@ def _unpack_dto_to_kwargs(dto: OrderDTO) -> dict:
     return d
 
 
-def _dto_to_market_order(dto: MarketOrderDTO):
+def _dto_to_market_order(dto: MarketOrderDTO) -> MarketOrder:
     kwargs = _unpack_dto_to_kwargs(dto)
     return MarketOrder.objects.create(**kwargs)
 
 
-def _dto_to_limit_order(dto: LimitOrderDTO):
+def _dto_to_limit_order(dto: LimitOrderDTO) -> LimitOrder:
     kwargs = _unpack_dto_to_kwargs(dto)
     price = 0
     match kwargs["direction"]:
@@ -103,7 +104,7 @@ def _dto_to_limit_order(dto: LimitOrderDTO):
     return LimitOrder.objects.create(**kwargs)
 
 
-def dto_to_order(dto):
+def dto_to_order(dto: LimitOrderDTO | MarketOrderDTO):
     match dto:
         case LimitOrderDTO():
             return _dto_to_limit_order(dto)
@@ -115,7 +116,7 @@ def dto_to_order(dto):
             )
 
 
-def api_request_to_dto(request):
+def api_request_to_dto(request: HttpRequest) -> LimitOrderDTO | MarketOrderDTO:
     data = json.loads(request.body)
     match data["order_type"]:
         case OrderType.LIMIT_ORDER.value:
@@ -126,12 +127,13 @@ def api_request_to_dto(request):
             raise TypeError(f"OrderType expected but {type(data)} recieved")
 
 
-def socket_message_to_order(message):
+def socket_message_to_order(message: dict) -> LimitOrder | MarketOrder:
     ticker = message["ticker"]
     symbol = get_symbol_by_ticker(ticker)
     initiator = get_object_or_404(Depo, user__pk=message["user"])
     depo_pk = initiator.pk
     btn = message["button"]
+
     direction = (
         OrderDirection.BUY
         if "buy" in btn
@@ -171,7 +173,8 @@ def socket_message_to_order(message):
     return dto_to_order(dto)
 
 
-def view_request_to_order(request, ticker):
+
+def view_request_to_order(request: HttpRequest, ticker: str) -> LimitOrder | MarketOrder:
     symbol = get_symbol_by_ticker(ticker)
     initiator = get_object_or_404(Depo, user=request.user)
     depo_pk = initiator.pk

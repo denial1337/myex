@@ -8,6 +8,10 @@
     <meta charset="UTF-8">
     <title>{{ ticker }}</title>
     <link rel="stylesheet" type="text/css" href="{% static 'ex/css/styles.css' %}">
+    <script>
+        TUNNEL_URL = "myex-petproject12.serveo.net"
+        console.log(TUNNEL_URL)
+    </script>
     <!-- Стили CSS -->
     <style>
 
@@ -297,7 +301,7 @@
     async function fetchOrderBook() {
         try {
             const ticker = "{{ ticker }}";
-            const response = await fetch('http://127.0.0.1:8000/api/' + ticker + '/');
+            const response = await fetch('https://' + TUNNEL_URL + '/api/' + ticker + '/');
             if (!response.ok) {
                 throw new Error('Network response was not ok ' + response.statusText);
             }
@@ -383,7 +387,8 @@
 <script>
     let chart;
 <!--    {% if user.is_authenticated %} 127.0.0.1:8000  myex-petproject1313.loca.lt/-->
-    let socket = new WebSocket('wss://myex-petproject1313.loca.lt/ws/');
+
+    let socket = new WebSocket('wss://' + TUNNEL_URL + '/ws/');
 
     socket.onopen = function(e) {
        console.log('Connection established');
@@ -417,7 +422,7 @@
     const orderBookBody= document.getElementById('orderBookContainer');
     const rows = orderBookBody.getElementsByTagName('tr'); // Получаем все строки таблицы
     const ticker = "{{ ticker }}";
-    const response = await fetch('http://127.0.0.1:8000/api/' + ticker + '/');
+    const response = await fetch('https://' + TUNNEL_URL + '/api/' + ticker + '/');
     if (!response.ok) {
          throw new Error('Network <re></re>sponse was not ok ' + response.statusText);
     }
@@ -467,7 +472,7 @@
     let haveValue = false
     async function fetchDepo() {
         const tbody = document.getElementById('depoTable').getElementsByTagName('tbody')[0];
-        const response = await fetch('http://127.0.0.1:8000/api/user/' + '{{ user.pk }}' + '/depo/');
+        const response = await fetch('https://' + TUNNEL_URL + '/api/user/' + '{{ user.pk }}' + '/depo/');
         const data = await response.json();
         // Обновление существующих или добавление новых данных
             if (haveValue) {
@@ -491,7 +496,7 @@
 <script>
     async function fetchPositions() {
         const tbody = document.getElementById('positionsTable').getElementsByTagName('tbody')[0];
-        const response = await fetch('http://127.0.0.1:8000/api/user/' + '{{ user.pk }}' + '/positions/');
+        const response = await fetch('https://' + TUNNEL_URL + '/api/user/' + '{{ user.pk }}' + '/positions/');
         const data = await response.json();
 
         const currentPositions = {}; // Объект для хранения текущих позиций
@@ -555,7 +560,7 @@
 <script>
 async function fetchOrders() {
     const tbody = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
-    const response = await fetch('http://127.0.0.1:8000/api/user/' + '{{ user.pk }}' + '/orders/');
+    const response = await fetch('https://' + TUNNEL_URL + '/api/user/' + '{{ user.pk }}' + '/orders/');
     const data = await response.json();
 
     const currentOrders = {}; // Объект для хранения текущих заказов

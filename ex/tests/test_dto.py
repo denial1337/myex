@@ -1,14 +1,7 @@
-from django.db.models import Sum
-from django.http import Http404
 from django.test import TestCase
 
 from ex.models import Symbol, Depo, LimitOrder, AbstractOrder, MarketOrder
-from generate import generate_symbols, generate_deposits
 from services.DTO_service import (
-    OrderDTO,
-    MarketOrderDTO,
-    OrderType,
-    OrderDirection,
     create_market_order_dto,
     dto_to_order,
     create_random_limit_order_dto,

@@ -22,7 +22,7 @@ class MyConsumer(WebsocketConsumer):
         else:
             self.close()
 
-    def receive(self, text_data):
+    def receive(self, text_data: str | None = None, bytes_data: None = None) -> None:
         data = json.loads(text_data)
         self.send(
             text_data=json.dumps(

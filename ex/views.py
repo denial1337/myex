@@ -1,25 +1,29 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import model_to_dict
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from django.http import JsonResponse
+from django.http import HttpRequest
+
 from django.shortcuts import render
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
-from django.contrib import messages
-from django.db.models import Q, QuerySet
+from django.db.models import Q
 from itertools import chain
+
+from urllib3 import HTTPResponse
 
 from services.DTO_service import dto_to_order, api_request_to_dto, view_request_to_order
 from services.broker_service import get_pnl, free_equity
 from services.context_service import get_context_by_ticker
-from services.order_book_service import get_symbol_by_ticker, get_serialized_order_book
+from services.order_book_service import get_serialized_order_book
+from services.symbol_service import get_symbol_by_ticker
 from services.transaction_service import resolve_order
 from .models import Symbol, Depo, Position, LimitOrder, MarketOrder
 
 ORDERS_NUM = 7
 
 
-def symbol_view(request, ticker):
+def symbol_view(request: HttpRequest, ticker: str) -> HTTPResponse:
     if request.method == "GET":
         context = get_context_by_ticker(ticker)
         return render(request, "symbol.html", context)
@@ -35,7 +39,7 @@ def symbol_view(request, ticker):
 
 
 @csrf_exempt
-def symbol_view_api(request, ticker):
+def symbol_view_api(request: HttpRequest, ticker: str) -> JsonResponse:
     if (symbol := get_symbol_by_ticker(ticker)) is None:
         return JsonResponse(f'ticker "{ticker}" does not exist')
 
@@ -46,13 +50,13 @@ def symbol_view_api(request, ticker):
     if request.method == "POST":
         dto = api_request_to_dto(request)
         order = dto_to_order(dto)
-        if not order is None:
+        if order is not None:
             resolve_order(order)
         return JsonResponse({})
 
 
 @csrf_exempt
-def user_depo_api(request, user_pk):
+def user_depo_api(request: HttpRequest, user_pk: int) -> JsonResponse:
     if request.method == "GET":
         try:
             user = User.objects.get(pk=user_pk)
@@ -65,7 +69,7 @@ def user_depo_api(request, user_pk):
 
 
 @csrf_exempt
-def user_positions_api(request, user_pk):
+def user_positions_api(request: HttpRequest, user_pk: int) -> JsonResponse:
     if request.method == "GET":
         try:
             user = User.objects.get(pk=user_pk)
@@ -85,7 +89,7 @@ def user_positions_api(request, user_pk):
 
 
 @csrf_exempt
-def user_orders_api(request, user_pk):
+def user_orders_api(request: HttpRequest, user_pk: int) -> HttpRequest:
     if request.method == "GET":
         try:
             user = User.objects.get(pk=user_pk)
@@ -132,7 +136,7 @@ def user_orders_api(request, user_pk):
 
 
 @csrf_exempt
-def depo_view_api(request, depo_pk):
+def depo_view_api(request: HttpRequest, depo_pk: int) -> JsonResponse:
     if request.method == "GET":
         depo = Depo.objects.get(pk=depo_pk)
         if depo is None:
@@ -147,6 +151,6 @@ class HomepageAPI(View):
         return JsonResponse({"symbols": tickers})
 
 
-def homepage_view(request):
+def homepage_view(request: HttpRequest) -> HTTPResponse:
     if request.method == "GET":
         return render(request, "homepage.html")

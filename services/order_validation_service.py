@@ -3,7 +3,7 @@ from services.broker_service import free_equity
 from services.symbol_service import bid_count, ask_count
 
 
-def _get_average_price_for_market_order(order):
+def _get_average_price_for_market_order(order: AbstractOrder) -> int:
     # FIXME
     # тут некоторое допущение, я пропущу сложную агрегацию для вычисления
     # средней цены рыночной заявки и просто возьму лучшую цену
@@ -14,7 +14,7 @@ def _get_average_price_for_market_order(order):
     )
 
 
-def _get_maker_price(order):
+def _get_maker_price(order: AbstractOrder) -> int | None:
     match order:
         case MarketOrder():
             return (
@@ -24,10 +24,11 @@ def _get_maker_price(order):
             )
         case LimitOrder():
             return order.price
-    return None
+        case _:
+            return None
 
 
-def _is_valid_market_order(order: MarketOrder):
+def _is_valid_market_order(order: MarketOrder) -> bool:
     if free_equity(
         order.initiator
     ) < order.quantity * _get_average_price_for_market_order(order):
@@ -45,15 +46,15 @@ def _is_valid_market_order(order: MarketOrder):
     return True
 
 
-def _is_valid_limit_order(order: LimitOrder):
+def _is_valid_limit_order(order: LimitOrder) -> bool:
     depo = order.initiator
     maker_price = _get_maker_price(order)
 
     return free_equity(depo) > order.quantity * maker_price
 
 
-# FIXME подправить валидация для обратной сделки
-def is_valid_order(order):
+# FIXME подправить валидацию для обратной сделки
+def is_valid_order(order: AbstractOrder) -> bool:
     match order:
         case LimitOrder():
             return _is_valid_limit_order(order)

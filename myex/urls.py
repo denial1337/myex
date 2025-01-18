@@ -16,11 +16,9 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include, re_path
-from django_registration.views import RegistrationView
+from django.urls import path, include
 
-import ex.models
-from ex.views import symbol_view, symbol_view_api, homepage_view, HomepageAPI
+from ex.views import homepage_view, HomepageAPI
 
 # from users.views import register
 

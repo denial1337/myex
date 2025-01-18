@@ -2,7 +2,7 @@ from ex.forms.forms import MarketOrderFormManager, LimitOrderFormManager
 from services.transaction_service import get_last_transactions
 
 
-def get_context_by_ticker(ticker):
+def get_context_by_ticker(ticker: str) -> dict:
     t = get_last_transactions(ticker)
     context = {
         "ticker": ticker,
