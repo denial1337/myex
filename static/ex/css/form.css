@@ -1,0 +1,53 @@
+form {
+    background-color: #f9f9f9; /* Цвет фона формы */
+    border: 1px solid #ddd; /* Граница формы */
+    border-radius: 5px; /* Закругленные углы формы */
+    padding: 20px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"] {
+    width: calc(100% - 20px); /* Устанавливаем ширину инпутов */
+    padding: 10px; /* Внутренний отступ */
+    margin-bottom: 10px; /* Отступ снизу */
+    border: 1px solid #ccc; /* Граница инпутов */
+    border-radius: 4px; /* Закругленные углы */
+    transition: border 0.3s; /* Плавный переход при фокусе */
+}
+
+input[type="text"]:focus: focus {
+    border: 1px solid #007bff; /* Цвет границы при фокусе */
+    outline: none; /* Убираем контур при фокусе */
+}
+
+.buy-button {
+    background-color: #437DD4; /* Цвет кнопки */
+    color: white; /* Цвет текста */
+    border: none; /* Убираем границу */
+    border-radius: 5px; /* Закругленные углы кнопок */
+    padding: 10px 10px; /* Внутренний отступ */
+    cursor: pointer; /* Указатель руки */
+    transition: background-color 0.3s; /* Плавный переход цвета кнопки */
+    margin: 3px; /* Отступ между кнопками */
+    //width: 47%
+}
+
+.buy-button:hover {
+    background-color: #052F6D; /* Цвет кнопки при наведении */
+}
+
+.sell-button {
+    background-color: #FA3E54; /* Цвет кнопки */
+    color: white; /* Цвет текста */
+    border: none; /* Убираем границу */
+    border-radius: 5px; /* Закругленные углы кнопок */
+    padding: 10px 10px; /* Внутренний отступ */
+    cursor: pointer; /* Указатель руки */
+    transition: background-color 0.3s; /* Плавный переход цвета кнопки */
+    margin: 3px; /* Отступ между кнопками */
+    //width: 47%
+}
+
+.sell-button:hover {
+    background-color: #A01818; /* Цвет кнопки при наведении */
+}

@@ -50,8 +50,7 @@ def get_best_ask(symbol: Symbol) -> int:
         return best_ask
     if is_active_ask_orders_exist(symbol):
         best_ask = (
-            LimitOrder.objects
-            .filter(
+            LimitOrder.objects.filter(
                 symbol__ticker=symbol.ticker,
                 direction=AbstractOrder.OrderDirection.SELL,
                 status=AbstractOrder.OrderStatus.PLACED,
@@ -89,61 +88,44 @@ def ask_count(symbol: Symbol) -> int:
 
 
 def get_ask_limit_orders(symbol: Symbol) -> List[LimitOrder]:
-    return (
-        LimitOrder.objects
-        .filter(
-            symbol__ticker=symbol.ticker,
-            price=get_best_ask(symbol),
-            direction=AbstractOrder.OrderDirection.SELL,
-            status=AbstractOrder.OrderStatus.PLACED,
-        )
-        .order_by("datetime")
-    )
+    return LimitOrder.objects.filter(
+        symbol__ticker=symbol.ticker,
+        price=get_best_ask(symbol),
+        direction=AbstractOrder.OrderDirection.SELL,
+        status=AbstractOrder.OrderStatus.PLACED,
+    ).order_by("datetime")
 
 
 def get_bid_limit_orders(symbol: Symbol) -> List[LimitOrder]:
-    return (
-        LimitOrder.objects
-        .filter(
-            symbol__ticker=symbol.ticker,
-            price=get_best_bid(symbol),
-            direction=AbstractOrder.OrderDirection.BUY,
-            status=AbstractOrder.OrderStatus.PLACED,
-        )
-        .order_by("datetime")
-    )
+    return LimitOrder.objects.filter(
+        symbol__ticker=symbol.ticker,
+        price=get_best_bid(symbol),
+        direction=AbstractOrder.OrderDirection.BUY,
+        status=AbstractOrder.OrderStatus.PLACED,
+    ).order_by("datetime")
 
 
 def is_active_ask_orders_exist(symbol: Symbol) -> bool:
-    return (
-        LimitOrder.objects
-        .filter(
-            symbol__ticker=symbol.ticker,
-            direction=AbstractOrder.OrderDirection.SELL,
-            status=AbstractOrder.OrderStatus.PLACED,
-        )
-        .exists()
-    )
+    return LimitOrder.objects.filter(
+        symbol__ticker=symbol.ticker,
+        direction=AbstractOrder.OrderDirection.SELL,
+        status=AbstractOrder.OrderStatus.PLACED,
+    ).exists()
 
 
 def is_active_bid_orders_exist(symbol: Symbol) -> bool:
-    return (
-        LimitOrder.objects
-        .filter(
-            symbol__ticker=symbol.ticker,
-            direction=AbstractOrder.OrderDirection.BUY,
-            status=AbstractOrder.OrderStatus.PLACED,
-        )
-        .exists()
-    )
+    return LimitOrder.objects.filter(
+        symbol__ticker=symbol.ticker,
+        direction=AbstractOrder.OrderDirection.BUY,
+        status=AbstractOrder.OrderStatus.PLACED,
+    ).exists()
 
 
 def update_best_bidask(symbol: Symbol) -> None:
     ask_key = "best_ask_" + symbol.ticker
     if is_active_ask_orders_exist(symbol):
         best_ask = (
-            LimitOrder.objects
-            .filter(
+            LimitOrder.objects.filter(
                 symbol__ticker=symbol.ticker,
                 direction=AbstractOrder.OrderDirection.SELL,
                 status=AbstractOrder.OrderStatus.PLACED,

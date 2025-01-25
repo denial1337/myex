@@ -65,7 +65,7 @@ class AbstractOrder(models.Model):
         if not self.is_init:
             self.initial_quantity = self.quantity
             self.is_init = True
-        #print(self.quantity, self.initial_quantity)
+        # print(self.quantity, self.initial_quantity)
         super().save(*args, **kwargs)
 
     initiator = ForeignKey(Depo, on_delete=CASCADE)

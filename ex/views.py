@@ -33,7 +33,6 @@ def symbol_view(request: HttpRequest, ticker: str) -> HTTPResponse:
         order = view_request_to_order(request, ticker)
         resolve_order(order)
         context = get_context_by_ticker(ticker)
-        context["is_auth"] = request.user.is_authenticated
         context["status"] = status
         return render(request, "symbol.html", context)
 
@@ -80,7 +79,6 @@ def user_positions_api(request: HttpRequest, user_pk: int) -> JsonResponse:
             return JsonResponse({"error": f"No depo with user pk {user_pk}"})
         positions = Position.objects.filter(Q(depo=depo) & ~Q(quantity=0))
         pnls = [get_pnl(pos) for pos in positions]
-        print(pnls, positions)
         positions = [model_to_dict(pos) for pos in positions if pos.quantity != 0]
         for pos, pnl in zip(positions, pnls):
             pos["symbol"] = Symbol.objects.get(pk=pos["symbol"]).ticker
@@ -89,7 +87,7 @@ def user_positions_api(request: HttpRequest, user_pk: int) -> JsonResponse:
 
 
 @csrf_exempt
-def user_orders_api(request: HttpRequest, user_pk: int) -> HttpRequest:
+def user_orders_api(request: HttpRequest, user_pk: int) -> JsonResponse:
     if request.method == "GET":
         try:
             user = User.objects.get(pk=user_pk)
@@ -147,7 +145,7 @@ class HomepageAPI(View):
     def get(self, request, *args, **kwargs):
         symbols = Symbol.objects.all()
 
-        tickers = list(Symbol.objects.all().values("ticker"))
+        tickers = list(Symbol.objects.all().values("ticker", "full_name"))
         return JsonResponse({"symbols": tickers})
 
 

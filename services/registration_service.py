@@ -13,7 +13,4 @@ def create_depo_for_new_user(user: User) -> None:
     )
     symbols = Symbol.objects.all()
     for sym in symbols:
-        Position.objects.create(
-            symbol=sym,
-            depo=depo
-        )
+        Position.objects.create(symbol=sym, depo=depo)

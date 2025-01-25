@@ -31,8 +31,7 @@
                     symbolCard.className = 'symbol-card';
                     symbolCard.innerHTML = `
                         <h2>${symbol.ticker}</h2>
-                        <p>Bid: ${symbol.best_bid}</p>
-                        <p>Ask: ${symbol.best_ask}</p>
+                        <h3>${symbol.full_name}</h3>
                     `;
 
                     symbolCard.addEventListener('click', () => {

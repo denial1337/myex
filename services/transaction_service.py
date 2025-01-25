@@ -14,10 +14,12 @@ from services.socket_service import send_order_book_update, send_new_transaction
 from services.symbol_service import (
     update_best_bidask,
     get_ask_limit_orders,
-    get_bid_limit_orders, get_best_ask, get_best_bid,
+    get_bid_limit_orders,
+    get_best_ask,
+    get_best_bid,
 )
 
-TRANSACTIONS_LIMIT = 20
+TRANSACTIONS_LIMIT = 40
 
 
 def get_last_transactions(ticker: str) -> List[Transaction]:
@@ -67,7 +69,9 @@ def _update_positions_after_transaction(transaction: Transaction) -> None:
 
 
 # FIXME сделать протектед?
-def make_market_transaction(maker_order: LimitOrder, taker_order: AbstractOrder) -> None:
+def make_market_transaction(
+    maker_order: LimitOrder, taker_order: AbstractOrder
+) -> None:
     orders_quantity_dif = maker_order.quantity - taker_order.quantity
     content_type = None
     match taker_order:
@@ -128,9 +132,13 @@ def close_order(order_pk: int) -> bool:
 
 def _resolve_market_order(order: MarketOrder) -> None:
     if order.direction == AbstractOrder.OrderDirection.BUY:
-        _push_taker_order(order, get_ask_limit_orders, _push_ending_condition_for_market_order)
+        _push_taker_order(
+            order, get_ask_limit_orders, _push_ending_condition_for_market_order
+        )
     elif order.direction == AbstractOrder.OrderDirection.SELL:
-        _push_taker_order(order, get_bid_limit_orders, _push_ending_condition_for_market_order)
+        _push_taker_order(
+            order, get_bid_limit_orders, _push_ending_condition_for_market_order
+        )
 
     if order.quantity == 0:
         order.status = AbstractOrder.OrderStatus.FILLED
@@ -141,12 +149,16 @@ def _resolve_limit_order(order: LimitOrder) -> None:
     if order.direction == LimitOrder.OrderDirection.BUY and order.price >= get_best_ask(
         order.symbol
     ):
-        _push_taker_order(order, get_ask_limit_orders, _push_ending_condition_for_buy_limit_order)
+        _push_taker_order(
+            order, get_ask_limit_orders, _push_ending_condition_for_buy_limit_order
+        )
     elif (
         order.direction == LimitOrder.OrderDirection.SELL
         and order.price <= get_best_bid(order.symbol)
     ):
-        _push_taker_order(order, get_bid_limit_orders, _push_ending_condition_for_sell_limit_order)
+        _push_taker_order(
+            order, get_bid_limit_orders, _push_ending_condition_for_sell_limit_order
+        )
 
     order.status = (
         AbstractOrder.OrderStatus.FILLED

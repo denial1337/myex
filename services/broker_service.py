@@ -13,9 +13,10 @@ MAKE_DEAL_CHANCE = 50
 
 
 def create_symbols():
-    s = zip(['TLST', 'LRMN', 'PSH'], ['Tolstoy Corp', 'Lermont', 'Pushkin Bank'])
-    symbols = [Symbol(ticker=t, fullname=n) for t,n in s]
+    s = zip(["TLST", "LRMN", "PSH"], ["Tolstoy Corp", "Lermont", "Pushkin Bank"])
+    symbols = [Symbol(ticker=t, fullname=n) for t, n in s]
     Symbol.objects.bulk(symbols)
+
 
 def create_deposit(user: User | None = None) -> None:
     depo = Depo.objects.create(
@@ -29,9 +30,10 @@ def create_deposits(amount: int) -> None:
     for i in range(amount):
         create_deposit()
 
+
 def init_db():
     create_symbols()
-    create_deposits()
+    create_deposits(100)
 
 
 def get_pnl(position: Position) -> float:
@@ -65,8 +67,6 @@ def free_equity(depo):
         - sum([equity(pos) for pos in positions])
         - open_orders_equity(depo)
     )
-
-
 
 
 def start_trading():

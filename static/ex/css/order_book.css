@@ -1,0 +1,30 @@
+#orderBookContainer {
+    //height: 400px; /* Примерная высота контейнера */
+    border: 3px solid #ddd; /* Граница контейнера */
+    background-color: #ffffff; /* Цвет фона контейнера */
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); /* Тень контейнера */
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+
+
+
+}
+.ask {
+    background-color: rgba(250, 112, 128, 0.3); //#FA7080;
+    border: 1px solid black;
+    //width: 100%;
+    padding: 2px;
+}
+.bid {
+    background-color: rgba(106, 148, 212, 0.3);//#6A94D4;// /* Зеленовато прозрачный */
+    border: 1px solid black;
+    //width: 100%;
+    padding: 2px;
+}
+
+
+
+
+
+

@@ -1,0 +1,35 @@
+.MainTable {
+    width: 100%;
+    margin: auto; /* Центрирует таблицу */
+}
+
+.main-td {
+    align-items: center;
+    padding: 10px; /* Отступ внутри ячейки */
+    border: 1px solid #ccc; /* Цвет границы ячеек */
+    border-radius: 15px; /* Закруглённые края */
+    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.1); /* Небольшая тень */
+    background-color: #fff; /* Цвет фона ячейки */
+    margin: 0px auto; /* Отступ между ячейками */
+
+}
+
+.main-td-div {
+    display: flex; /* Используем flexbox для выравнивания */
+    justify-content: center; /* Центрируем по горизонтали */
+    align-items: center; /* Центрируем по вертикали */
+    height: 100%; /* Задаем высоту равной высоте ячейки */
+    width: 100%;
+}
+
+.main-chart-td
+{
+    width: 63% !important;
+}
+
+.main-ob-td
+{
+    width: 7% !important;
+}
+
+

@@ -173,8 +173,9 @@ def socket_message_to_order(message: dict) -> LimitOrder | MarketOrder:
     return dto_to_order(dto)
 
 
-
-def view_request_to_order(request: HttpRequest, ticker: str) -> LimitOrder | MarketOrder:
+def view_request_to_order(
+    request: HttpRequest, ticker: str
+) -> LimitOrder | MarketOrder:
     symbol = get_symbol_by_ticker(ticker)
     initiator = get_object_or_404(Depo, user=request.user)
     depo_pk = initiator.pk

@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 
-from django.conf.global_settings import CSRF_TRUSTED_ORIGINS
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,12 +26,12 @@ SECRET_KEY = "django-insecure-kz17b=el@x%&x7ffpk*9yb(23n@r4b)-ioj-nn)lzom_!&5q94
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+#'myex-petproject12.serveo.net'
+TUNNEL_URL = "127.0.0.1"
 
-TUNNEL_URL = 'myex-petproject12.serveo.net'
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", TUNNEL_URL]
-
-CSRF_TRUSTED_ORIGINS.append("https://" + TUNNEL_URL)
+# CSRF_TRUSTED_ORIGINS.append("https://" + TUNNEL_URL)
 
 # Application definition
 
@@ -63,7 +62,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://myex-petproject1313.loca.lt",
+    "https://" + TUNNEL_URL,
 ]
 CORS_ALLOW_METHODS = [
     "GET",
@@ -148,7 +147,7 @@ AUTH_PASSWORD_VALIDATORS = [
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",  # Укажите свой IP и порт
+        "LOCATION": "redis://127.0.0.1:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
@@ -174,8 +173,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "ex/static"),
+    os.path.join(BASE_DIR, "static"),
 ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
